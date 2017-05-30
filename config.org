@@ -1275,10 +1275,10 @@ Subword-mode]] is a buffer-local minor mode. Enabling it remaps word-based editi
 
 #+BEGIN_SRC emacs-lisp
 (use-package mwim
-  :ensure t
-  :config
-  (global-set-key [remap move-beginning-of-line] #'mwim-beginning)
-  (global-set-key [remap move-end-of-line]       #'mwim-end))
+  :ensure t)
+
+(global-set-key (kbd "C-a") 'mwim-beginning-of-code-or-line-or-comment)
+(global-set-key (kbd "C-e") 'mwim-end-of-code-or-line)
 #+END_SRC
 *** Pop to mark
 
