@@ -382,7 +382,6 @@ I use menu to look at keybindings
 
 Disable popups and inhibit startup screen & startup echo area message
 
-
 #+BEGIN_SRC emacs-lisp
   (setq use-file-dialog nil)
   (setq use-dialog-box nil)
@@ -394,7 +393,6 @@ Disable popups and inhibit startup screen & startup echo area message
 #+END_SRC
 
 Remove internal borders between windows
-
 
 #+BEGIN_SRC emacs-lisp
   (let ((no-border '(internal-border-width . 0)))
@@ -436,10 +434,90 @@ Set up frame title format
 ** Themes Settings
 
 I tend to switch themes more often than normal. For example, switching to a lighter theme (such as the default) or to a different theme depending on the time of day or my mood. Normally, switching themes is a multi-step process with ~disable-theme~ and ~load-theme~. The ~switch-theme~ function will do that in one swoop. I just choose which theme I want to go to.
+*** Solarized theme
 
+ Here's some configuration for [[https://github.com/bbatsov/solarized-emacs/][bbatsov's solarized themes]].
+
+ #+begin_src emacs-lisp
+   (use-package solarized-theme
+     :ensure t
+     :config
+     (progn
+       (setq solarized-use-variable-pitch nil)
+       (custom-set-variables '(solarized-termcolors 256))
+       (custom-set-variables '(solarized-contrast 'high))
+       (custom-set-variables '(solarized-visibility 'high))
+       (setq solarized-distinct-fringe-background t)
+       (setq solarized-high-contrast-mode-line t)
+       (setq solarized-use-less-bold t)
+       (setq solarized-use-more-italic nil)
+       (setq solarized-scale-org-headlines nil)))
+ #+end_src
+*** Flatui theme
+#+BEGIN_SRC emacs-lisp
+  (use-package flatui-theme
+    :load-path "themes/flatui-theme/flatui-theme.el"
+    :ensure t
+    :config
+    ;; (set-face-attribute 'org-block nil :background
+    ;;                     (color-darken-name
+    ;;                      (face-attribute 'default :background) 3))
+    ;; (setq org-src-block-faces '(("emacs-lisp" (:background "#e5e5e5"))
+    ;;                             ("haskell" (:background "#e5e5e5"))
+    ;;                             ("python" (:background "#e5e5e5"))
+    ;;                             ("sh" (:background "#e5e5e5"))))
+    )
+#+END_SRC
+*** Doom themes
+#+BEGIN_SRC emacs-lisp
+(use-package doom-themes
+  :ensure t
+  :config
+  (setq doom-enable-bold nil
+        doom-enable-italic nil
+        doom-one-brighter-modeline t
+        doom-one-brighter-comments t)
+  ;; (doom-themes-neotree-config)
+  ;; (doom-themes-nlinum-config)
+  (setq org-fontify-whole-heading-line t
+        org-fontify-done-headline t
+        org-fontify-quote-and-verse-blocks t))
+#+END_SRC
+*** Subatomic theme
+#+BEGIN_SRC emacs-lisp
+(use-package subatomic-theme
+  :ensure t)
+#+END_SRC
+*** Espresso theme
+#+BEGIN_SRC emacs-lisp
+(use-package espresso-theme
+  :ensure t)
+#+END_SRC
+*** Monokai theme
+ #+begin_src emacs-lisp :tangle no
+(use-package monokai-theme
+  :if (window-system)
+  :ensure t
+  :config
+  (setq monokai-use-variable-pitch nil))
+ #+end_src
+*** Waher theme
+#+begin_src emacs-lisp
+ (use-package waher-theme
+   :load-path "themes/waher-theme/waher-theme.el"
+   :ensure t)
+#+end_src
+*** Material themes
+
+[[https://github.com/cpaulik/emacs-material-theme][Emacs theme]] based on the colors proposed by the Google Material Design.
+
+#+begin_src emacs-lisp :tangle no
+(use-package material-theme
+  :ensure t)
+#+end_src
 *** Default theme
 
-Threat all our themes as safe and set =flatui-theme= as the default theme:
+Threat all our themes as safe and set the default theme and faces for org-blocks:
 
 #+BEGIN_SRC emacs-lisp
 ;; (use-package color-theme
@@ -447,127 +525,54 @@ Threat all our themes as safe and set =flatui-theme= as the default theme:
 ;;   :init
 ;;   (setq color-theme-is-global t)
 ;;   (progn
-;;      (color-theme-initialize)
-;;      (color-theme-hober)))
+;;     (color-theme-initialize)
+;;     (color-theme-hober)))
 
 (setq custom-safe-themes t)
-;; (add-hook 'after-init-hook (lambda () (load-theme 'solarized-dark)))
+(add-hook 'after-init-hook (lambda () (load-theme 'solarized-light)))
+
+;; Change org mode src-block faces in this function and it will be invoked
+;; before loading org-package
+;; (defun my-apply-org-src-block-faces ()
+;;   "Apply custom org-block-src settings."
+;;   (face-spec-set 'org-block-begin-line
+;;                  '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+;;                  "Face used for the line delimiting the begin of source blocks.")
+;;   (face-spec-set 'org-block-background
+;;                  '((t (:background "#FFFFEA")))
+;;                  "Face used for the source block background.")
+;;   (face-spec-set 'org-block-end-line
+;;                  '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+;;                  "Face used for the line delimiting the end of source blocks."))
+
+;; Solarized-light org-blocks faces:
+
+;; (defface org-block-begin-line
+;;   '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+;;   "Face used for the line delimiting the begin of source blocks.")
+
+;; (defface org-block-background
+;;   '((t (:background "#FFFFEA")))
+;;   "Face used for the source block background.")
+
+;; (defface org-block-end-line
+;;   '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+;;   "Face used for the line delimiting the end of source blocks.")
+
+
+
+;; (face-spec-set 'org-block-begin-line
+;;                '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+;;                "Face used for the line delimiting the begin of source blocks.")
+;; (face-spec-set 'org-block-background
+;;                '((t (:background "#FFFFEA")))
+;;                "Face used for the source block background.")
+;; (face-spec-set 'org-block-end-line
+;;                '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+;;                "Face used for the line delimiting the end of source blocks.")
+
 #+END_SRC
-
-*** Solarized theme
-
- Here's some configuration for [[https://github.com/bbatsov/solarized-emacs/][bbatsov's solarized themes]].
-
- #+begin_src emacs-lisp
-(use-package solarized-theme
-  ;; :defer t
-  :ensure t
-  :init
-  (progn
-    (setq solarized-use-variable-pitch nil)
-    (custom-set-variables '(solarized-termcolors 256))
-    (custom-set-variables '(solarized-contrast 'high))
-    (custom-set-variables '(solarized-visibility 'high))
-    (setq solarized-distinct-fringe-background t)
-    (setq solarized-high-contrast-mode-line t)
-    (setq solarized-use-less-bold t)
-    (setq solarized-use-more-italic nil)
-    (setq solarized-scale-org-headlines nil))
-  (load-theme 'solarized-dark t))
- #+end_src
-
-*** Flatui theme
-
-#+BEGIN_SRC emacs-lisp
-(use-package flatui-theme
-  :load-path "themes/flatui-theme/flatui-theme.el"
-  :ensure t
-  :defer t
-  :init
-  (require 'color)
-  (set-face-attribute 'org-block nil :background
-                      (color-darken-name
-                       (face-attribute 'default :background) 3))
-  (setq org-src-block-faces '(("emacs-lisp" (:background "#e5e5e5"))
-                              ("haskell" (:background "#e5e5e5"))
-                              ("python" (:background "#e5e5e5"))
-                              ("sh" (:background "#e5e5e5"))))
-  (load-theme 'flatui))
-#+END_SRC
-
-*** Doom themes
-
-#+BEGIN_SRC emacs-lisp
-;; (use-package doom-themes
-;;   :load-path "themes/doom-theme/doom-themes.el"
-;;   :defer t
-;;   :ensure t
-;;   :init
-;;   (setq doom-enable-bold nil
-;;         doom-enable-italic nil
-;;         doom-one-brighter-modeline t
-;;         doom-one-brighter-comments t)
-;;   (doom-themes-neotree-config)
-;;   (doom-themes-nlinum-config)
-;;   (setq org-fontify-whole-heading-line t
-;;         org-fontify-done-headline t
-;;         org-fontify-quote-and-verse-blocks t)
-;;   (load-theme 'doom-one))
-#+END_SRC
-
-*** Subatomic theme
-
-#+BEGIN_SRC emacs-lisp
-;; (use-package subatomic-theme
-;;   :ensure t
-;;   :defer t
-;;   :init
-;;   (load-theme 'subatomic))
-#+END_SRC
-
-*** Espresso theme
-
-#+BEGIN_SRC emacs-lisp
-;; (use-package espresso-theme
-;;   :ensure t
-;;   :defer t
-;;   :init
-;;   (load-theme 'espresso))
-#+END_SRC
-
-*** Monokai theme
-
- #+begin_src emacs-lisp :tangle no
-(use-package monokai-theme
-  :if (window-system)
-  :ensure t
-  :init
-  (setq monokai-use-variable-pitch nil))
- #+end_src
-
-*** Waher theme
-
-#+begin_src emacs-lisp :tangle no
- (use-package waher-theme
-   :load-path "themes/waher-theme/waher-theme.el"
-   :ensure t
-   :init
-   (load-theme 'waher))
-#+end_src
-
-*** Material themes
-
-[[https://github.com/cpaulik/emacs-material-theme][Emacs theme]] based on the colors proposed by the Google Material Design.
-
-#+begin_src emacs-lisp :tangle no
-(use-package material-theme
-  :ensure t
-  :init
-  (load-theme 'material))
-#+end_src
-
 *** Convenient theme functions
-
  #+begin_src emacs-lisp
 (defun switch-theme (theme)
   "Disables any currently active themes and loads THEME."
@@ -589,7 +594,6 @@ Threat all our themes as safe and set =flatui-theme= as the default theme:
 (bind-key "C-c §" 'switch-theme)
 (bind-key "C-c 1" 'disable-active-themes)
  #+end_src
-
 *** Show color in file
 
 #+BEGIN_SRC emacs-lisp
@@ -948,7 +952,6 @@ Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
 #+END_SRC
 ** Parens, Brackets & Co
 *** Useful links to manuals and other stuff
-
  - [[http://danmidwood.com/content/2014/11/21/animated-paredit.html][The Animated Guide To Paredit]]
 *** Paredit & paredit-everywhere settings
 
@@ -1275,10 +1278,12 @@ Subword-mode]] is a buffer-local minor mode. Enabling it remaps word-based editi
 
 #+BEGIN_SRC emacs-lisp
 (use-package mwim
-  :ensure t)
+  :ensure t
+  :config
+  (global-set-key (kbd "C-a") 'mwim-beginning-of-code-or-line-or-comment)
+  (global-set-key (kbd "C-e") 'mwim-end-of-code-or-line))
 
-(global-set-key (kbd "C-a") 'mwim-beginning-of-code-or-line-or-comment)
-(global-set-key (kbd "C-e") 'mwim-end-of-code-or-line)
+
 #+END_SRC
 *** Pop to mark
 
@@ -2067,6 +2072,59 @@ Smex integrates ido with ~M-x~. I used to use this before moving on to [[*Helm][
   :ensure t
   :bind ("M-x" . smex))
 #+end_src
+** Yasnippet Settings
+*** Useful Links To Manuals And Other Yasnippet-Related Stuff
+ - [[http://web.archive.org/web/20160422052957/http://capitaomorte.github.io/yasnippet/snippet-development.html][Huge manual]] about snippet development (currently unavailable - the link is to archived copy).
+ - [[http://blog.refu.co/?p%3D1355][Blog post]] with detailed explanation of writing snippets with =C= code examples.
+ - [[http://cupfullofcode.com/blog/2013/02/26/snippet-expansion-with-yasnippet/index.html][Detailed blog post]] with examples of how to write snippets, including snippets with embedded Lisp code.
+*** Set Up Yasnippet
+
+It takes a few seconds to load and I don't need them immediately when
+Emacs starts up, so we can defer loading yasnippet until there's some
+idle time.
+
+#+begin_src emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :defer t
+  :diminish yas-minor-mode
+  :config
+  (setq yas-snippet-dirs (concat user-emacs-directory "snippets"))
+  (yas-global-mode))
+#+end_src
+*** Helper function for integration of =autoinsert= and =yasnippet=
+
+Let’s create a helper function that takes the static text that auto-insert puts into a new file, but treat it as if it were a snippet.
+
+#+BEGIN_SRC emacs-lisp
+  (defun my-autoinsert-yas-expand()
+    "Replace text in yasnippet template."
+    (yas-expand-snippet (buffer-string) (point-min) (point-max)))
+#+END_SRC
+*** Configure =auto-insert=
+If you want to use templates, you need to write templates, place them to your =~/.emacs.d/templates/= directory and add here to config.
+
+If you want to use snippets as templates, you need to write appropriate snippets, place them in your file for snippets and add here to config.
+
+[[http://www.howardism.org/Technical/Emacs/templates-tutorial.html][Blog post about integration yasnippet with autoinsert]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package autoinsert
+               :init
+               ;; Don't want to be prompted before insertion:
+               (setq auto-insert-query nil)
+
+               (setq auto-insert-directory (locate-user-emacs-file "templates"))
+               (add-hook 'find-file-hook 'auto-insert)
+               (auto-insert-mode 1)
+
+               :config
+               (define-auto-insert "\\.html?$" "default-html.html")
+               (define-auto-insert "\\.el$" ["default-lisp.el" ha/autoinsert-yas-expand])
+               (define-auto-insert "\\.sh$" ["default-sh.sh" ha/autoinsert-yas-expand])
+               (define-auto-insert "/bin/"  ["default-sh.sh" ha/autoinsert-yas-expand])
+               (define-auto-insert "\\.html?$" ["default-html.html" ha/autoinsert-yas-expand]))
+#+END_SRC
 * Various Mode's Settings
 ** Allow Multiple Major Modes To Coexist In One Buffer
 
@@ -2497,33 +2555,32 @@ in which case we defer to stylish-haskell."
 I ensure the =org-plus-contrib= package so that it installs not only the latest =org-mode=, but also the included contribution packages.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org
-    :ensure org-plus-contrib
-    :pin org
-    :defer 10
-    :diminish org-indent-mode
-    :bind (("C-c l" . org-store-link)
-           ("C-c a" . org-agenda)
-           ("C-c b" . org-iswitchb)
-           ("C-c c" . org-capture)
-           ("C-c C-f" . org-babel-previous-src-block)
-           ("C-c C-b" . org-babel-next-src-block))
-    :defer 30
-    :config
-    (use-package org-install)
-    (use-package ob-core)
-    ;; org-export
-    (use-package ox)
-    ;; Enable archiving things
-    (use-package org-archive)
-    ;; enabled export backends
-    ;; (use-package ox-rss)
-    (when (boundp 'org-export-backends)
-      (custom-set-variables '(org-export-backends '(ascii beamer html latex md))))
-    ;; Allow's electric-pair-mode to surround things with = and ~ in org-mode
-    (modify-syntax-entry ?~ "(~" org-mode-syntax-table)
-    (modify-syntax-entry ?= "(=" org-mode-syntax-table))
-  (diminish 'org-indent-mode)
+(use-package org
+  :ensure org-plus-contrib
+  :pin org
+  :defer 10
+  :diminish org-indent-mode
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda)
+         ("C-c b" . org-iswitchb)
+         ("C-c c" . org-capture)
+         ("C-c C-f" . org-babel-previous-src-block)
+         ("C-c C-b" . org-babel-next-src-block))
+  :defer 30
+  :config
+  (use-package org-install)
+  (use-package ob-core)
+  ;; org-export
+  (use-package ox)
+  ;; Enable archiving things
+  (use-package org-archive)
+  ;; enabled export backends
+  ;; (use-package ox-rss)
+  (when (boundp 'org-export-backends)
+    (custom-set-variables '(org-export-backends '(ascii beamer html latex md))))
+  ;; Allow's electric-pair-mode to surround things with = and ~ in org-mode
+  (modify-syntax-entry ?~ "(~" org-mode-syntax-table)
+  (modify-syntax-entry ?= "(=" org-mode-syntax-table))
 #+END_SRC
 *** Automatically save all org files every minute /(disabled)/
 #+BEGIN_SRC emacs-lisp
@@ -2942,6 +2999,16 @@ I use [[https://github.com/yjwen/org-reveal][org-reveal]] for HTML/JS presentati
 #+BEGIN_SRC emacs-lisp
 
 #+END_SRC
+*** Visible mode - see raw =org-mode= files without going to a =text-mode=
+ee raw org-mode files without going to a different mode like
+text-mode, which is what I had done in order to see invisible text
+(with org hyperlinks). The entire buffer contents will be visible
+while still being in org mode.
+
+#+begin_src emacs-lisp
+(use-package visible-mode
+  :bind (("s-<f2>" . visible-mode)))
+#+end_src
 ** Elm Mode
 *** Set up =elm-mode= for Emacs
 
@@ -2995,20 +3062,115 @@ The [[https://github.com/ankurdave/color-identifiers-mode][color-identifiers]] p
 ;;   (add-hook 'emacs-lisp-mode-hook 'color-identifiers-mode)
 ;;   :diminish color-identifiers-mode)
 #+END_SRC
-** Markdown mode
+** HTML, CSS & JS
+*** Webmode
+#+begin_src emacs-lisp
+(use-package web-mode
+  :ensure t)
+#+end_src
+*** Emmet Mode
 
+According to [[http://emmet.io/][their website]], "Emmet — the essential toolkit for web-developers."
+
+#+begin_src emacs-lisp
+(use-package emmet-mode
+  :ensure t
+  :commands emmet-mode
+  :config
+  (add-hook 'html-mode-hook 'emmet-mode)
+  (add-hook 'css-mode-hook 'emmet-mode))
+#+end_src
+*** Skewer Mode
+
+[[https://github.com/skeeto/skewer-mode][Skewer mode]] is for live coding for HTML/CSS/JavaScript.
+
+#+begin_src emacs-lisp
+(use-package skewer-mode
+  :commands skewer-mode
+  :ensure t
+  :config (skewer-setup))
+#+end_src
+** Python Mode
+
+Integrates with IPython.
+
+#+begin_src emacs-lisp
+(use-package python-mode
+  :defer t
+  :ensure t)
+#+end_src
+
+*** Emacs IPython Notebook
+#+begin_src emacs-lisp
+(use-package ein
+  :ensure t
+  :defer t)
+#+end_src
+** Markdown Mode
 #+begin_src emacs-lisp
 (use-package markdown-mode
   :ensure t
   :mode (("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'"       . markdown-mode)))
 #+end_src
-** Working with shell
+** Writing Modes
+
+Use =s-<f5>= to turn on =fountain-mode= and =s-<f5>= to turn on =olivetti-mode=. You can use these modes together.
+
+*** Fountain Mode
+
+[[https://github.com/rnkn/fountain-mode][Fountain Mode]] is Emacs major mode for screenwriting in Fountain plaintext markup.
+
+#+BEGIN_SRC emacs-lisp
+(use-package fountain-mode
+  :ensure t
+  :bind ("s-<f5>" . fountain-mode))
+#+END_SRC
+*** Olivetti Mode
+
+[[https://github.com/rnkn/olivetti][Olivetti]] is a simple Emacs minor mode for a nice writing environment.
+
+#+begin_src emacs-lisp
+(use-package olivetti
+  :ensure t
+  :bind ("s-<f6>" . olivetti-mode))
+#+end_src
+** Restclient Mode
+
+See [[http://emacsrocks.com/e15.html][Emacs Rocks! Episode 15]] to learn how restclient can help out with testing APIs from within Emacs. The HTTP calls you make in the buffer aren't constrainted within Emacs; there's the =restclient-copy-curl-command= to get the equivalent =curl= call string to keep things portable.
+
+#+begin_src emacs-lisp
+(use-package restclient
+  :ensure t
+  :mode ("\\.restclient\\'" . restclient-mode))
+#+end_src
+** Working With Shell
 *** =-i= gets alias definitions from .bash_profile
 
 #+BEGIN_SRC emacs-lisp
 (setq shell-command-switch "-ic")
 #+END_SRC
+*** Tramp Mode
+
+[[https://github.com/randymorris/tramp-term.el][Tramp Mode]] provides a quick way to create an ansi-term containing an ssh session with remote directory tracking already configured.
+
+Only one command is provided. Run =M-x tramp-term= to be prompted in the minibuffer for a user (optional) and host to connect to. Once the ssh session has been established simply open files as you would in a normal ansi-term or shell buffer with =C-x C-f=.
+
+#+begin_src emacs-lisp :tangle no
+(use-package tramp
+  :ensure t)
+#+end_src
+** Instant =*scratch*= Buffer For Current Mode
+
+Convenient package to create =*scratch*= buffers that are based on the current buffer's major mode. This is more convienent than manually creating a buffer to do some scratch work or reusing the initial =*scratch*= buffer.
+
+Use =M-x scratch= to launch a scratch buffer for the current mode.
+
+#+begin_src emacs-lisp
+(use-package scratch
+  :ensure t
+  :commands scratch)
+#+end_src
 * Version Control Settings
 ** Magit Settings
 *** Useful links to manuals and other stuff
@@ -3048,6 +3210,29 @@ No more juggling windows after commiting. It's magit bliss.
   (kill-buffer)
   (jump-to-register :magit-fullscreen))
 #+end_src
+*** Magit plugin for dealing with GitHub pull requests
+
+Use [[https://github.com/sigma/magit-gh-pulls][magit-gh-pulls]] to track your PRs on GitHub.
+
+Usage:
+ - In =magit-status= window press =# g= to refresh the list of pull requests.
+ - If there are some PRs available, a new section will appear called *Pull Requests*.
+ - Highlighting the desired PR and pressing =# f= will fetch the commits associated with the PR. You can then press =TAB= to reveal the list of commits which comes with this PR.
+ - From this point magit-gh-pulls offers you two options:
+    - press =# b= on the PR to create a topic branch for this PR. After testing the PR you can merge it back into your branch using Magit.
+    - press =# m= to merge the PR on top of the currently checked out branch. If you still want the merge commit, enable =-c= option while in =magit-gh-pulls menu=.
+ - In =magit-status= press =# c= to create a new pull request.
+ - Finally, pressing =C-c C-c= will connect to GitHub to create the pull request. If =-w= option is enabled, the new pull request will be opened on github.com in the browser.
+ - =# o= Will open the selected a pull request in your default browser on GitHub.
+ - =j q= will jump to the Pull Requests section in the =magit-status= window.
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit-gh-pulls
+  :ensure t
+  :defer t
+  :config
+  (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
+#+END_SRC
 * Project Tools Settings
 ** Ag Settings
 
@@ -3293,4 +3478,14 @@ Call =describe-mode= to see a full list of ibuffer commands.
 #+begin_src emacs-lisp
 ;; make ibuffer the default buffer lister.
 (defalias 'list-buffers 'ibuffer)
+#+end_src
+** Code Collaboration
+*** Floobits
+
+Using [[https://floobits.com/][Floobits]] for code collaboration.
+
+#+begin_src emacs-lisp
+(use-package floobits
+  :ensure t
+  :defer t)
 #+end_src
