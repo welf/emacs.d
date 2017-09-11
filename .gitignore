@@ -9,3 +9,7 @@
 /auto-save-list/.saves-68850-MBPro-AW.station~
 /*.station
 /auto-save-list/.saves-94602-MBPro-AW.station~
+.eshell
+.mc-lists.el
+ac-comphist.dat
+auto-save-list

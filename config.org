@@ -55,7 +55,7 @@ customize settings in [[file:init.el][init.el]]. File used for storing Emacs' cu
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 #+end_src
-*** Grab PATH From =.bash_profile=
+*** Grab PATH From =.zshrc=
 
 Set the path variable:
 
@@ -64,7 +64,11 @@ Set the path variable:
   :if (memq window-system '(mac ns))
   :ensure t
   :config
-  (exec-path-from-shell-initialize))
+  (progn (exec-path-from-shell-initialize)
+         (setenv "ESHELL" (expand-file-name "~/.emacs.d/.eshell"))
+         (setenv "SHELL" (expand-file-name "/bin/zsh"))))
+
+
 #+END_SRC
 *** Directory For Not Installed Packages
 
@@ -515,61 +519,81 @@ I tend to switch themes more often than normal. For example, switching to a ligh
 (use-package material-theme
   :ensure t)
 #+end_src
+*** Atom One Dark UI theme
+#+BEGIN_SRC emacs-lisp
+(use-package atom-one-dark-theme
+  :ensure t)
+#+END_SRC
+*** Blackboard theme
+#+BEGIN_SRC emacs-lisp
+(use-package blackboard-theme
+  :ensure t)
+#+END_SRC
+*** Base-16 theme
+#+BEGIN_SRC emacs-lisp
+(use-package base16-theme
+  :ensure t)
+#+END_SRC
 *** Default theme
 
 Threat all our themes as safe and set the default theme and faces for org-blocks:
 
 #+BEGIN_SRC emacs-lisp
-;; (use-package color-theme
-;;   :ensure t
-;;   :init
-;;   (setq color-theme-is-global t)
-;;   (progn
-;;     (color-theme-initialize)
-;;     (color-theme-hober)))
+  ;; (use-package color-theme
+  ;;   :ensure t
+  ;;   :init
+  ;;   (setq color-theme-is-global t)
+  ;;   (progn
+  ;;     (color-theme-initialize)
+  ;;     (color-theme-hober)))
 
-(setq custom-safe-themes t)
-(add-hook 'after-init-hook (lambda () (load-theme 'solarized-light)))
+  (setq custom-safe-themes t)
+  ;; (add-hook 'after-init-hook (lambda () (load-theme 'base16-oceanicnext)))
+  (add-hook 'after-init-hook #'my-set-faces)
 
-;; Change org mode src-block faces in this function and it will be invoked
-;; before loading org-package
-;; (defun my-apply-org-src-block-faces ()
-;;   "Apply custom org-block-src settings."
-;;   (face-spec-set 'org-block-begin-line
-;;                  '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
-;;                  "Face used for the line delimiting the begin of source blocks.")
-;;   (face-spec-set 'org-block-background
-;;                  '((t (:background "#FFFFEA")))
-;;                  "Face used for the source block background.")
-;;   (face-spec-set 'org-block-end-line
-;;                  '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
-;;                  "Face used for the line delimiting the end of source blocks."))
+  (when (display-graphic-p)
+    (progn
+      (load-theme 'base16-oceanicnext t)))
 
-;; Solarized-light org-blocks faces:
+  ;; Change org mode src-block faces in this function and it will be invoked
+  ;; before loading org-package
+  ;; (defun my-apply-org-src-block-faces ()
+  ;;   "Apply custom org-block-src settings."
+  ;;   (face-spec-set 'org-block-begin-line
+  ;;                  '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+  ;;                  "Face used for the line delimiting the begin of source blocks.")
+  ;;   (face-spec-set 'org-block-background
+  ;;                  '((t (:background "#FFFFEA")))
+  ;;                  "Face used for the source block background.")
+  ;;   (face-spec-set 'org-block-end-line
+  ;;                  '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+  ;;                  "Face used for the line delimiting the end of source blocks."))
 
-;; (defface org-block-begin-line
-;;   '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
-;;   "Face used for the line delimiting the begin of source blocks.")
+  ;; Solarized-light org-blocks faces:
 
-;; (defface org-block-background
-;;   '((t (:background "#FFFFEA")))
-;;   "Face used for the source block background.")
+  ;; (defface org-block-begin-line
+  ;;   '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+  ;;   "Face used for the line delimiting the begin of source blocks.")
 
-;; (defface org-block-end-line
-;;   '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
-;;   "Face used for the line delimiting the end of source blocks.")
+  ;; (defface org-block-background
+  ;;   '((t (:background "#FFFFEA")))
+  ;;   "Face used for the source block background.")
+
+  ;; (defface org-block-end-line
+  ;;   '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+  ;;   "Face used for the line delimiting the end of source blocks.")
 
 
 
-;; (face-spec-set 'org-block-begin-line
-;;                '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
-;;                "Face used for the line delimiting the begin of source blocks.")
-;; (face-spec-set 'org-block-background
-;;                '((t (:background "#FFFFEA")))
-;;                "Face used for the source block background.")
-;; (face-spec-set 'org-block-end-line
-;;                '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
-;;                "Face used for the line delimiting the end of source blocks.")
+  ;; (face-spec-set 'org-block-begin-line
+  ;;                '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+  ;;                "Face used for the line delimiting the begin of source blocks.")
+  ;; (face-spec-set 'org-block-background
+  ;;                '((t (:background "#FFFFEA")))
+  ;;                "Face used for the source block background.")
+  ;; (face-spec-set 'org-block-end-line
+  ;;                '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "cornsilk")))
+  ;;                "Face used for the line delimiting the end of source blocks.")
 
 #+END_SRC
 *** Convenient theme functions
@@ -584,7 +608,8 @@ Threat all our themes as safe and set the default theme and faces for org-blocks
                                    (custom-available-themes))))))
   (let ((enabled-themes custom-enabled-themes))
     (mapc #'disable-theme custom-enabled-themes)
-    (load-theme theme t)))
+    (load-theme theme t)
+    (my-set-faces)))
 
 (defun disable-active-themes ()
   "Disables any currently active themes listed in `custom-enabled-themes'."
@@ -594,6 +619,60 @@ Threat all our themes as safe and set the default theme and faces for org-blocks
 (bind-key "C-c §" 'switch-theme)
 (bind-key "C-c 1" 'disable-active-themes)
  #+end_src
+*** Find out which face is under the point
+
+If you want to customize faces, first you should [[https://stackoverflow.com/a/1242415/2924117][find out the name of desired face]]. You can do it with =M-x what-face= command or with =C-c f= keybinding:
+
+#+BEGIN_SRC emacs-lisp
+(defun what-face (pos)
+  (interactive "d")
+  (let ((face (or (get-char-property (point) 'read-face-name)
+                  (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
+
+(global-set-key (kbd "C-c f") 'what-face)
+#+END_SRC
+*** Set up faces
+#+BEGIN_SRC emacs-lisp
+(defun my-set-faces ()
+  (set-face-attribute 'font-lock-function-name-face nil
+                      :bold nil
+                      :background nil
+                      :underline nil
+                      :foreground "#3ca33c")
+
+  (set-face-attribute 'font-lock-constant-face nil
+                      :bold nil
+                      :background nil
+                      :underline nil)
+
+  (set-face-attribute 'font-lock-keyword-face nil
+                      :bold nil
+                      :background nil
+                      :underline nil
+                      :foreground "#FF6400")
+
+  (set-face-attribute 'font-lock-string-face nil
+                      :bold nil
+                      :background nil
+                      :underline nil)
+
+  (set-face-attribute 'font-lock-type-face nil
+                      :bold nil
+                      :background nil
+                      :underline nil)
+
+
+  (set-face-attribute 'org-link nil
+                      :bold nil
+                      :background nil)
+
+  (set-face-attribute 'org-verbatim nil
+                      :bold nil
+                      :italic nil
+                      :background nil
+                      :underline nil))
+#+END_SRC
 *** Show color in file
 
 #+BEGIN_SRC emacs-lisp
@@ -1608,6 +1687,7 @@ First, Emacs doesn’t handle =less= well, so use =cat= instead for the shell pa
 
 #+BEGIN_SRC emacs-lisp
 (setenv "PAGER" "cat")
+(setq shell-file-name "/bin/zsh")
 #+END_SRC
 
 Customize shell properties:
@@ -1671,6 +1751,8 @@ First, a function to be called when =eshell-mode= is entered:
   (local-set-key (kbd "M-N") 'eshell-next-prompt)
   (local-set-key (kbd "M-R") 'eshell-previous-matching-input)
   (local-set-key (kbd "M-r") 'helm-eshell-history))
+
+(setq shell-command-switch "-c")
 #+END_SRC
 
 Add a nice helper to sudo-edit a file:
@@ -1878,11 +1960,13 @@ I use =company= for a lot of things, so let’s just enable it everywhere.
   ;; Raise the documentation popup for Company
   (use-package company-quickhelp
     :ensure t
+    :after company
     :init (add-hook 'company-mode-hook #'company-quickhelp-mode)
-    :config (setq company-quickhelp-delay 2))
+    :config (setq company-quickhelp-delay 3))
   ;; Set up statistics for company completions
   (use-package company-statistics
     :ensure t
+    :after company
     :init (add-hook 'after-init-hook #'company-statistics-mode))
   :config
   (setq company-selection-wrap-around t
@@ -1897,6 +1981,7 @@ I use =company= for a lot of things, so let’s just enable it everywhere.
         ;; Don't autocomplete in these modes
         company-global-modes '(not org-mode)
         company-search-regexp-function #'company-search-flex-regexp)
+  (add-to-list 'company-backends 'company-elm)
   (bind-keys :map company-active-map
              ("C-n" . company-select-next)
              ("C-p" . company-select-previous)
@@ -1943,6 +2028,14 @@ Used [[https://www.emacswiki.org/emacs/TabCompletion#SmartTab][smart-tab]] to co
   (setq smart-tab-using-hippie-expand t)
   :config
   (add-to-list 'smart-tab-disabled-major-modes 'shell-mode))
+#+END_SRC
+** Auto-Complete Settings
+#+BEGIN_SRC emacs-lisp
+(use-package auto-complete
+  :ensure t
+  ;; :config
+  ;; (ac-config-default)
+  )
 #+END_SRC
 ** Flycheck Settings
 
@@ -3021,32 +3114,27 @@ while still being in org mode.
 (use-package elm-mode
   :ensure t
   :defer t
-  :after company
+  :after company auto-complete
   :mode ("\\.elm\\'" . elm-mode)
   :commands elm-mode
-  :init
-  ;; (use-package flycheck-elm
-  ;;   :ensure t
-  ;;   :after flycheck
-  ;;   :commands flycheck-elm-setup
-  ;;   :init
-  ;;   (add-hook 'flycheck-mode-hook 'flycheck-elm-setup t))
   :config
-  ;; (add-hook 'elm-mode-hook
-  ;;           (lambda ()
-  ;;             (setq company-backends '(company-elm))))
-  (add-hook 'elm-mode-hook 'company-mode)
-  ;; (add-hook 'elm-mode-hook #'elm-oracle-setup-ac)
-  ;; (add-hook 'elm-mode-hook #'elm-oracle-setup-completion)
-  (if (fboundp 'electric-indent-local-mode)
-      (electric-indent-local-mode -1))
-  (setq elm-tags-on-save t
-        elm-format-on-save t
-        elm-tags-exclude-elm-stuff nil
-        elm-sort-imports-on-save t))
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.elm\\'" . elm-mode)
+                 'company-backends 'company-elm)
+    ;; (add-hook 'elm-mode-hook
+    ;;           (lambda ()
+    ;;             (setq company-backends '(company-elm))))
+    ;; (add-hook 'elm-mode-hook 'company-mode)
+    (add-hook 'elm-mode-hook #'elm-oracle-setup-ac)
+    (add-hook 'elm-mode-hook #'elm-oracle-setup-completion)
+    ;; (add-hook 'elm-mode-hook 'auto-complete-mode)
+    (if (fboundp 'electric-indent-local-mode)
+        (electric-indent-local-mode -1))
+    (setq elm-tags-on-save t
+          elm-format-on-save t
+          elm-tags-exclude-elm-stuff nil
+          elm-sort-imports-on-save t)))
 
-;;
-;; (add-hook 'elm-mode-hook 'auto-complete-mode)
 ;; (add-hook 'elm-mode-hook 'flycheck-mode)
 
 
@@ -3064,21 +3152,46 @@ The [[https://github.com/ankurdave/color-identifiers-mode][color-identifiers]] p
 #+END_SRC
 ** HTML, CSS & JS
 *** Webmode
+
+web-mode.el is an autonomous emacs major-mode for editing web templates. HTML documents can embed parts (CSS / JavaScript) and blocks (client / server side).
+
+Features can be seen here: http://web-mode.org/
+
 #+begin_src emacs-lisp
 (use-package web-mode
-  :ensure t)
+  ;; :mode ("\\.html$" . web-mode)
+  :init
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+
+  (setq web-mode-enable-auto-pairing t)
+  (setq web-mode-enable-auto-expanding t)
+  (setq web-mode-enable-css-colorization t)
+  :config
+  (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))
 #+end_src
 *** Emmet Mode
 
 According to [[http://emmet.io/][their website]], "Emmet — the essential toolkit for web-developers."
 
+Cheatsheet: https://docs.emmet.io/cheat-sheet/
+
 #+begin_src emacs-lisp
 (use-package emmet-mode
-  :ensure t
-  :commands emmet-mode
-  :config
+  :init
+  (add-hook 'css-mode-hook 'emmet-mode)
+  (add-hook 'sgml-mode-hook 'emmet-mode)
   (add-hook 'html-mode-hook 'emmet-mode)
-  (add-hook 'css-mode-hook 'emmet-mode))
+  (add-hook 'web-mode-hook 'emmet-mode)
+  :config
+  (setq-default emmet-move-cursor-between-quote t)
+  ;; (unbind-key "<C-return>" emmet-mode-keymap)
+  ;; (unbind-key "C-M-<left>" emmet-mode-keymap)
+  ;; (unbind-key "C-M-<right>" emmet-mode-keymap)
+  )
+
 #+end_src
 *** Skewer Mode
 
