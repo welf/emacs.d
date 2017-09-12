@@ -3187,6 +3187,7 @@ Cheatsheet: https://docs.emmet.io/cheat-sheet/
   (add-hook 'web-mode-hook 'emmet-mode)
   :config
   (setq-default emmet-move-cursor-between-quote t)
+  (setq emmet-self-closing-tag-style "")
   ;; (unbind-key "<C-return>" emmet-mode-keymap)
   ;; (unbind-key "C-M-<left>" emmet-mode-keymap)
   ;; (unbind-key "C-M-<right>" emmet-mode-keymap)
