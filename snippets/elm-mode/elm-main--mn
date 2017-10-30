@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: elm-main
+# key: mn
+# --
+main : Program Never Model Msg
+main =
+    program
+        { init = initialModel ! []
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        }

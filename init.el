@@ -30,14 +30,15 @@
 
 ;;Keep track of where time is being spent during Emacs startup
 (use-package benchmark-init
-    :load-path "./packages/benchmark-init"
-    :ensure benchmark-init
-    :init
-    (progn
-      (require 'benchmark-init-loaddefs)
-      (benchmark-init/activate)
-      ;; (benchmark-init/show-durations-tabulated)
-      (add-hook 'after-init-hook 'benchmark-init/deactivate)))
+  :load-path "./packages/benchmark-init"
+  :ensure benchmark-init
+  :init
+  (progn
+    (require 'benchmark-init-loaddefs)
+    (benchmark-init/activate)
+    ;; (benchmark-init/show-durations-tabulated)
+    ;; (add-hook 'after-init-hook 'benchmark-init/deactivate)
+    ))
 
 ;;; Load the config
 (org-babel-load-file (concat user-emacs-directory "config.org"))

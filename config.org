@@ -1,3 +1,4 @@
+#+STARTUP: showeverything
 #+TITLE: My Emacs Configuration In Org-Mode
 #+AUTHOR: Arthur Welf
 
@@ -31,6 +32,23 @@ The whole thing is started by [[file:init.el][init.el]].
 #+BEGIN_SRC emacs-lisp
 ;; (setq max-lisp-eval-depth 50000)
 ;; (setq max-specpdl-size 10000)
+#+END_SRC
+*** Temporarily unset stndard arrow keys to make a habit to use Emacs keybindings only
+
+#+BEGIN_SRC emacs-lisp
+(global-unset-key (kbd "<left>"))
+(global-unset-key (kbd "<right>"))
+(global-unset-key (kbd "<up>"))
+(global-unset-key (kbd "<down>"))
+;; (global-unset-key (kbd "<C-left>"))
+;; (global-unset-key (kbd "<C-right>"))
+;; (global-unset-key (kbd "<C-up>"))
+;; (global-unset-key (kbd "<C-down>"))
+;; (global-unset-key (kbd "<M-left>"))
+;; (global-unset-key (kbd "<M-right>"))
+;; (global-unset-key (kbd "<M-up>"))
+;; (global-unset-key (kbd "<M-down>"))
+(global-unset-key (kbd "M-<down-mouse-1>")) ;; it is binded to mc/add-cursor-on-click
 #+END_SRC
 ** Personal Information
  #+begin_src emacs-lisp
@@ -181,9 +199,8 @@ The Emacs server allows for using =emacsclient= to quickly pop open a new frame 
 #+BEGIN_SRC emacs-lisp
 (use-package server
   :if window-system
-  :config
-  (unless (server-running-p)
-    (server-start)))
+  :init
+  (server-start))
 #+END_SRC
 
 Here are the most common ways in which =emacsclient= is used:
@@ -302,10 +319,15 @@ export MANPATH=":/usr/local/opt/coreutils/libexec/gnuman"
        (when (executable-find "gls")
          (setq insert-directory-program "gls"))))
 #+END_SRC
-*** Set =Alt= key as =Meta= & right =Cmd= key as =C=
+*** Set =Alt= keys as =Meta= & =Cmd= keys as =C=
 
 #+BEGIN_SRC emacs-lisp
 (when *is-a-mac*
+  ;; (setq mac-command-modifier 'super)
+  ;; (define-key global-map [?\s-x] 'kill-region)
+  ;; (define-key global-map [?\s-c] 'kill-ring-save)
+  ;; (define-key global-map [?\s-v] 'yank)
+  (setq mac-command-modifier 'control)
   (setq mac-right-command-modifier 'control)
   (setq mac-option-modifier 'meta))
 #+END_SRC
@@ -339,13 +361,14 @@ export MANPATH=":/usr/local/opt/coreutils/libexec/gnuman"
 ** Load Libraries
 *** Dash
 
-Integration with [[http://kapeli.com/dash][Dash, the API documentation browser on OS X]]. The binding ~s-D~ is the same as Cmd-Shift-D, the same binding that dash uses in Android Studio (trying to keep things consistent with the tools I use).
+Integration with [[http://kapeli.com/dash][Dash, the API documentation browser on OS X]].
 
 #+begin_src emacs-lisp
 (use-package dash-at-point
-   :ensure t
-   :bind (("s-D"     . dash-at-point)
-          ("C-c e"   . dash-at-point-with-docset)))
+  :defer t
+  :ensure t
+  :bind (("C-c d"     . dash-at-point)
+         ("C-c D"   . dash-at-point-with-docset)))
 #+end_src
 *** =f= package
 #+BEGIN_SRC emacs-lisp
@@ -1029,6 +1052,15 @@ Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
   :diminish page-break-lines-mode
   :config (global-page-break-lines-mode))
 #+END_SRC
+*** Disable annoying tag-add-tables
+
+#+BEGIN_SRC emacs-lisp
+;; Don't ask to keep current tag table, just do it
+(setq tags-add-tables t)
+
+;; (setq tags-revert-without-query 1)
+;; (setq tags-add-tables nil)
+#+END_SRC
 ** Parens, Brackets & Co
 *** Useful links to manuals and other stuff
  - [[http://danmidwood.com/content/2014/11/21/animated-paredit.html][The Animated Guide To Paredit]]
@@ -1342,15 +1374,15 @@ Subword-mode]] is a buffer-local minor mode. Enabling it remaps word-based editi
 |--------------------+-----------------------+----------------------|
 | *Old command*        | *New command*           | *Keybinding*           |
 |--------------------+-----------------------+----------------------|
+| =kill-word=          | =subword-kill=          | =<C-delete>=, =M-d=      |
 | =backward-kill-word= | =subword-backward-kill= | =C-<backspace>=, =M-Del= |
+| =forward-word=       | =subword-forward=       | =M-f=, =ESC <right>=     |
 | =backward-word=      | =subword-backward=      | =M-b=, =ESC <left>=      |
 | =capitalize-word=    | =subword-capitalize=    | =M-c=                  |
+| =upcase-word        | =subword-upcase=        | =M-u=                  |
 | =downcase-word=      | =subword-downcase=      | =M-l=                  |
-| =forward-word=       | =subword-forward=       | =M-f=, =ESC <right>=     |
-| =kill-word=          | =subword-kill=          | =<C-delete>=, =M-d=      |
 | =mark-word=          | =subword-mark=          | =M-@=                  |
 | =transpose-words    | =subword-transpose=     | =M-t= (remapped)       |
-| =upcase-word        | =subword-upcase=        | =M-u=                  |
 *** Remap =move-beginning-of-line= and =move-end-of-line= to jump to the beginning/end of *code or line*
 
 [[https://github.com/alezost/mwim.el][Mwim]] provides several commands to switch between various line positions, like moving to the beginning/end of code, line or comment.
@@ -1381,9 +1413,18 @@ We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/
 #+begin_src emacs-lisp
 (use-package multiple-cursors
   :ensure t
+  :config
+  (define-key mc/keymap (kbd "<return>") nil) ;; make <return> insert a newline
+  ;; To make iy-go-to-char works better with multiple-cursors, add iy-go-to-char-start-pos to mc/cursor-specific-vars when mc is loaded
+  (add-to-list 'mc/cursor-specific-vars 'iy-go-to-char-start-pos)
   :bind (("C->"     . mc/mark-next-like-this)
          ("C-<"     . mc/mark-previous-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)))
+         ("C-c C-<" . mc/mark-all-like-this)
+         ("C-c C-a" . mc/edit-beginnings-of-lines)
+         ("C-c C-e" . mc/edit-ends-of-lines)
+         ("C-@" . mc/mark-next-like-this-word)
+         ("C-'" . mc-hide-unmatched-lines-mode)
+         ("M-<mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 *** Useful keybindings for text navigation (regardless of mode) TODO
 
@@ -1393,7 +1434,7 @@ We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/
 #+END_SRC
 *** Move the current line or region up or down with =move-text=
 
-[[https://github.com/emacsfodder/move-text][MoveText]] allows you to move the current line using =M-up= / =M-down=; if a region is marked, it will move the region instead.
+[[https://github.com/emacsfodder/move-text][MoveText]] allows you to move the current line using =M-<up>= / =M-<down>= if a region is marked, it will move the region instead.
 
 #+BEGIN_SRC emacs-lisp
 (use-package move-text
@@ -1498,6 +1539,15 @@ Zap *up* to char is a handy pair for zap-to-char. It kills *up to* but *not incl
 ;; (autoload 'zap-up-to-char "misc" "Kill up to, but not including ARGth occurrence of CHAR.")
 ;; (global-set-key (kbd "M-Z") 'zap-up-to-char)
 #+END_SRC
+*** Go to next char (=iy-go-to-char=)
+
+#+BEGIN_SRC emacs-lisp
+(use-package iy-go-to-char
+  :ensure t
+  :bind (("C-c g" . iy-go-to-char)
+         ("C-c G" . iy-go-to-char-backward)))
+#+END_SRC
+
 *** Cut / copy the current line if no region is selected
 
 Thus, =M-w= with no selection copies the current line, =C-w= kills it entirely, and =C-a M-w C-y= duplicates it.
@@ -1558,6 +1608,22 @@ Kills from the point back to the first non-whitespace character on the line. Bin
     (kill-region (point) prev-pos)))
 (global-set-key (kbd "C-M-<backspace>") 'my-kill-back-to-indentation)
 #+END_SRC
+*** Duplicate current line
+
+Duplicates current line and inserts the duplicate under the original line.
+
+#+BEGIN_SRC emacs-lisp
+(defun my-duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (open-line 1)
+  (next-line 1)
+  (yank)
+  )
+(global-set-key (kbd "C-c C-d") 'my-duplicate-line)
+#+END_SRC
 ** Search Settings
 *** Ignore case while searching
 
@@ -1580,6 +1646,19 @@ Set =case-fold-search= to =nil= if you want not to ignore case
          ("C-c m" . vr/mc-mark) ; Need multiple cursors
          ("C-M-r" . vr/isearch-backward)
          ("C-M-s" . vr/isearch-forward)))
+#+end_src
+*** phi-search
+
+[[https://github.com/zk-phi/phi-search][Incremental search & replace]], compatible with =multiple-cursors=
+
+#+begin_src emacs-lisp
+(use-package phi-search
+  :ensure t
+  :config
+  (setq phi-search-case-sensitive t)
+  :bind (("C-s" . phi-search)
+         ("C-r" . phi-search-backward)
+         ("M-%" . phi-replace-query)))
 #+end_src
 ** Save Session & Desktop /(disabled due to performance reasons)/
 *** Save desktop /(disabled)/
@@ -1946,42 +2025,41 @@ Also, after eshell has loaded its options, let’s load some other niceties like
   :bind
   ("M-/" . hippie-expand))
 #+END_SRC
-*** =company-mode= settings
+*** COMMENT =company-mode= settings
 
 I use =company= for a lot of things, so let’s just enable it everywhere.
 
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
-  :diminish company-mode
   :init
-  ;; Enable global-company-mode
-  (add-hook 'after-init-hook #'global-company-mode)
-  ;; Raise the documentation popup for Company
-  (use-package company-quickhelp
-    :ensure t
-    :after company
-    :init (add-hook 'company-mode-hook #'company-quickhelp-mode)
-    :config (setq company-quickhelp-delay 3))
-  ;; Set up statistics for company completions
-  (use-package company-statistics
-    :ensure t
-    :after company
-    :init (add-hook 'after-init-hook #'company-statistics-mode))
-  :config
-  (setq company-selection-wrap-around t
-        ;; do or don't automatically start completion after <idle time>
-        company-idle-delay 0.3
-        ;; at least 2 letters need to be there though
-        company-minimum-prefix-length 2
-        ;; show completion numbers for hotkeys
-        company-show-numbers t
-        ;; align annotations to the right
-        company-tooltip-align-annotations t
-        ;; Don't autocomplete in these modes
-        company-global-modes '(not org-mode)
-        company-search-regexp-function #'company-search-flex-regexp)
-  (add-to-list 'company-backends 'company-elm)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (add-hook 'emacs-lisp-mode-hook 'company-mode)
+  (setq company-selection-wrap-around t)
+  ;; do or don't automatically start completion after <idle time>
+  (setq company-idle-delay 0.1)
+  ;; at least 2 letters need to be there though
+  (setq company-minimum-prefix-length 3)
+  ;; show completion numbers for hotkeys
+  (setq company-show-numbers t)
+  ;; align annotations to the right
+  (setq company-tooltip-align-annotations t)
+  ;; Don't autocomplete in these modes
+  ;; company-global-modes '(not org-mode)
+  (setq company-search-regexp-function #'company-search-flex-regexp)
+  (setq company-dabbrev-ignore-case nil)
+  (setq company-dabbrev-code-ignore-case nil)
+  (setq company-dabbrev-downcase nil)
+  (setq company-begin-commands '(self-insert-command))
+  (setq company-transformers '(company-sort-by-occurrence))
+  ;; company tooltip customization for dark themes
+  (let ((bg (face-attribute 'default :background)))
+    (custom-set-faces
+     `(company-tooltip ((t (:inherit default :background ,(color-lighten-name bg 2)))))
+     `(company-scrollbar-bg ((t (:background ,(color-lighten-name bg 10)))))
+     `(company-scrollbar-fg ((t (:background ,(color-lighten-name bg 5)))))
+     `(company-tooltip-selection ((t (:inherit font-lock-function-name-face))))
+     `(company-tooltip-common ((t (:inherit font-lock-constant-face))))))
   (bind-keys :map company-active-map
              ("C-n" . company-select-next)
              ("C-p" . company-select-previous)
@@ -1989,7 +2067,28 @@ I use =company= for a lot of things, so let’s just enable it everywhere.
              ("C-l" . company-show-location)
              ("<tab>" . company-complete))
   :bind (("C-c ." . company-complete)
-         ("C-." . company-complete)))
+         ("C-." . company-complete))
+  :config
+  ;; Raise the documentation popup for Company
+  (use-package company-quickhelp
+    :ensure t
+    :after company
+    :init
+    (add-hook 'company-mode-hook 'company-quickhelp-mode)
+    :config
+    (setq company-quickhelp-delay 3))
+
+  ;; Set up statistics for company completions
+  (use-package company-statistics
+    :ensure t
+    :after company
+    :init
+    (add-hook 'after-init-hook 'company-statistics-mode)))
+
+
+;; Set up emacs-ycmd https://github.com/abingham/emacs-ycmd
+;; (use-package emacs-ycmd
+;;   :ensure t)
 #+END_SRC
 *** Configure =company= dabbrev completion
 
@@ -2033,9 +2132,36 @@ Used [[https://www.emacswiki.org/emacs/TabCompletion#SmartTab][smart-tab]] to co
 #+BEGIN_SRC emacs-lisp
 (use-package auto-complete
   :ensure t
-  ;; :config
-  ;; (ac-config-default)
-  )
+  :init
+  (ac-config-default)
+  ;; (global-auto-complete-mode 1)
+  (setq ac-auto-show-menu 0.3
+        ac-candidate-limit 15
+        ac-delay 0.3
+        ac-ignore-case nil
+        ac-auto-start 2)
+  (setq-default ac-sources '(ac-source-yasnippet
+                             ac-source-abbrev
+                             ac-source-dictionary
+                             ac-source-words-in-same-mode-buffers))
+  :config
+  (set-face-attribute 'ac-candidate-face nil :inherit 'company-tooltip-common)
+  (set-face-attribute 'ac-completion-face nil :inherit 'company-preview-common :background nil :foreground nil)
+  (set-face-attribute 'ac-selection-face nil :inherit 'company-tooltip-common-selection)
+  ;; from http://truongtx.me/2013/01/06/config-yasnippet-and-autocomplete-on-emacs/
+  ;; set the trigger key so that it can work together with yasnippet on
+  ;; tab key, if the word exists in yasnippet, pressing tab will cause
+  ;; yasnippet to activate, otherwise, auto-complete will
+  (ac-set-trigger-key "TAB")
+  (ac-set-trigger-key "<tab>")
+  ;; hack to fix ac-sources after pycomplete.el breaks it
+  (add-hook 'python-mode-hook
+            '(lambda ()
+               (setq ac-sources '(ac-source-pycomplete
+                                  ac-source-yasnippet
+                                  ac-source-abbrev
+                                  ac-source-dictionary
+                                  ac-source-words-in-same-mode-buffers)))))
 #+END_SRC
 ** Flycheck Settings
 
@@ -2047,12 +2173,39 @@ By default Flycheck hooks into Emacs’ standard error navigation on =M-g n= (=n
 (use-package flycheck
   :ensure t
   :defer 10
-  ;; :diminish flycheck-mode
-  :config
+  :bind (("C-`" . flycheck-list-errors))
+  :init
   (global-flycheck-mode)
-  (setq flycheck-display-errors-function #'flycheck-display-error-messages-unless-error-list))
-
-(global-set-key (kbd "C-`") 'flycheck-list-errors)
+  (add-hook 'sh-mode-hook 'flycheck-mode)
+  (add-hook 'json-mode-hook 'flycheck-mode)
+  (add-hook 'nxml-mode-hook 'flycheck-mode)
+  (add-hook 'python-mode-hook 'flycheck-mode)
+  (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
+  (add-hook 'lisp-interaction-mode-hook 'flycheck-mode)
+  (add-hook 'js2-mode-hook 'flycheck-mode)
+  (add-hook 'ruby-mode-hook 'flycheck-mode)
+  (add-hook 'haskell-mode-hook 'flycheck-mode)
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+  (setq flycheck-indication-mode 'left-fringe)
+  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+  (setq flycheck-display-errors-function #'flycheck-display-error-messages-unless-error-list)
+  (flycheck-add-mode 'javascript-eslint 'babel-mode)
+  :config
+  (use-package flycheck-pos-tip
+    :ensure t
+    :config (flycheck-pos-tip-mode))
+  (use-package flycheck-elm
+    :ensure t
+    :init
+    (add-hook 'flycheck-mode-hook 'flycheck-elm-setup)
+    (add-hook 'elm-mode-hook 'flycheck-mode)
+    (add-hook 'elm-mode-hook (lambda ()
+                               (message
+                                (setq default-directory (locate-dominating-file default-directory "elm-package.json"))))))
+  (use-package flycheck-color-mode-line
+    :ensure t
+    :init
+    (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode)))
 #+END_SRC
 ** Helm Settings
 *** Turn on [[https://emacs-helm.github.io/helm/][Helm]] - interactive completion
@@ -2122,7 +2275,10 @@ By default Flycheck hooks into Emacs’ standard error navigation on =M-g n= (=n
   :config
   (recentf-mode t)
   (setq recentf-max-saved-items 200))
+
 #+end_src
+
+
 *** Turn on =helm= bindings description
 
 We've replaced with this keybinding the binding for =where-is=
@@ -2179,20 +2335,19 @@ idle time.
 #+begin_src emacs-lisp
 (use-package yasnippet
   :ensure t
-  :defer t
-  :diminish yas-minor-mode
+  :init
+  (yas-global-mode 1)
   :config
-  (setq yas-snippet-dirs (concat user-emacs-directory "snippets"))
-  (yas-global-mode))
+  (add-to-list 'yas-snippet-dirs (locate-user-emacs-file "snippets")))
 #+end_src
 *** Helper function for integration of =autoinsert= and =yasnippet=
 
 Let’s create a helper function that takes the static text that auto-insert puts into a new file, but treat it as if it were a snippet.
 
 #+BEGIN_SRC emacs-lisp
-  (defun my-autoinsert-yas-expand()
-    "Replace text in yasnippet template."
-    (yas-expand-snippet (buffer-string) (point-min) (point-max)))
+(defun my-autoinsert-yas-expand()
+  "Replace text in yasnippet template."
+  (yas-expand-snippet (buffer-string) (point-min) (point-max)))
 #+END_SRC
 *** Configure =auto-insert=
 If you want to use templates, you need to write templates, place them to your =~/.emacs.d/templates/= directory and add here to config.
@@ -2202,21 +2357,20 @@ If you want to use snippets as templates, you need to write appropriate snippets
 [[http://www.howardism.org/Technical/Emacs/templates-tutorial.html][Blog post about integration yasnippet with autoinsert]]
 
 #+BEGIN_SRC emacs-lisp
-  (use-package autoinsert
-               :init
-               ;; Don't want to be prompted before insertion:
-               (setq auto-insert-query nil)
+(use-package autoinsert
+  :ensure t
+  :defer t
+  :init
+  ;; Don't want to be prompted before insertion:
+  (setq auto-insert-query nil)
 
-               (setq auto-insert-directory (locate-user-emacs-file "templates"))
-               (add-hook 'find-file-hook 'auto-insert)
-               (auto-insert-mode 1)
+  (setq auto-insert-directory (locate-user-emacs-file "templates"))
+  (add-hook 'find-file-hook 'auto-insert)
+  (auto-insert-mode 1)
 
-               :config
-               (define-auto-insert "\\.html?$" "default-html.html")
-               (define-auto-insert "\\.el$" ["default-lisp.el" ha/autoinsert-yas-expand])
-               (define-auto-insert "\\.sh$" ["default-sh.sh" ha/autoinsert-yas-expand])
-               (define-auto-insert "/bin/"  ["default-sh.sh" ha/autoinsert-yas-expand])
-               (define-auto-insert "\\.html?$" ["default-html.html" ha/autoinsert-yas-expand]))
+  :config
+  (define-auto-insert "\\.html?$" ["default-html.html" my-autoinsert-yas-expand])
+  (define-auto-insert "\\.elm?$" "default-elm.elm"))
 #+END_SRC
 * Various Mode's Settings
 ** Allow Multiple Major Modes To Coexist In One Buffer
@@ -2237,6 +2391,18 @@ If you want to use snippets as templates, you need to write appropriate snippets
 Turn on =json-reformat= and define function =my-json-pretty-print-buffer= to reformat JSON in whole buffer.
 
 #+BEGIN_SRC emacs-lisp
+(use-package json-mode
+  :ensure t
+  :mode "\\.json\\'"
+  :config
+  (bind-key "{" #'paredit-open-curly json-mode-map)
+  (bind-key "}" #'paredit-close-curly-and-newline json-mode-map)
+  (bind-key "(" #'paredit-open-round json-mode-map)
+  (bind-key ")" #'paredit-close-round json-mode-map)
+  (bind-key "[" #'paredit-open-square json-mode-map)
+  (bind-key "]" #'paredit-close-square-and-newline json-mode-map)
+  (add-hook 'before-save-hook 'my-json-pretty-print-buffer))
+
 (use-package json-reformat
   :ensure t
   :defer t)
@@ -2244,6 +2410,31 @@ Turn on =json-reformat= and define function =my-json-pretty-print-buffer= to ref
 (defun my-json-pretty-print-buffer ()
   "Reformat json in whole buffer."
   (json-reformat-region (point-min) (point-max)))
+#+END_SRC
+** Working with GraphQL
+*** Edit GraphQL schemas and queries
+Any file with a .graphql extension will be loaded with this mode. You install json-mode and it will be enabled in the buffer that contains the response from a GraphQL service.
+
+#+BEGIN_SRC emacs-lisp
+(use-package graphql-mode
+  :ensure t
+  :mode (("\\.graphcool$" . graphql-mode)
+         ("\\.graphql$" . graphql-mode))
+  :config
+  (add-hook 'graphql-mode-hook 'company-mode))
+#+END_SRC
+** Working with YAML
+*** yaml-mode
+
+#+BEGIN_SRC emacs-lisp
+(use-package yaml-mode
+  :ensure t
+  :mode (("\\.yml\\'" . yaml-mode))
+  :config
+  (add-hook 'yaml-mode-hook
+            '(lambda ()
+               (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
+  )
 #+END_SRC
 ** Haskell Mode
 *** Useful links to manuals and other haskel-mode related stuff
@@ -2303,8 +2494,8 @@ When flycheck is enabled (e.g. with =global-flycheck-mode=), Haskell buffers wil
     :diminish hindent-mode
     :config
     (add-hook 'haskell-mode-hook 'hindent-mode)
-    :bind
-    ("C-c i"   . hindent-reformat-decl))
+    :bind (:map haskell-mode-map
+                ("C-c i"   . hindent-reformat-decl)))
 
   (use-package hayoo
     :ensure t)
@@ -2380,29 +2571,30 @@ When flycheck is enabled (e.g. with =global-flycheck-mode=), Haskell buffers wil
         '("ghci" "--with-ghc" "intero" "--no-load" "--no-build")
         haskell-process-generate-tags nil)
   :bind
-  ;; jump to imports
-  ([f8] . haskell-navigate-imports)
-  ;; generally format (sort, align) your imports
-  ("C-c C-," . haskell-mode-format-imports)
-  ;; insert 'undefined'
-  ("C-c C-u" . haskell-insert-undefined)
-  ;; insert doc comment: --|
-  ("C-c C-a" . haskell-insert-doc)
-  ;; indent nested by 1 space
-  ("M-+" . haskell-move-right)
-  ;; reindent nested by 1 space
-  ("M-_" . haskell-move-left)
-  ;; add cost centre for profiling
-  ;; see http://bit.ly/haskell-cost-centres
-  ("C-c C-s" . haskell-mode-toggle-scc-at-point)
-  ;; compile with defined build command
-  ("C-c C-c" . haskell-compile)
-  ;; search definition in Hoogle
-  ("C-c h" . hoogle)
-  ;; show type of variable or expression at point
-  ("C-c C-t" . haskell-mode-show-type-at)
-  ;; clear repl history
-  ("C-c C-k" . haskell-interactive-mode-clear))
+  (:map haskell-mode-map
+        ;; jump to imports
+        ([f8] . haskell-navigate-imports)
+        ;; generally format (sort, align) your imports
+        ("C-c C-," . haskell-mode-format-imports)
+        ;; insert 'undefined'
+        ("C-c C-u" . haskell-insert-undefined)
+        ;; insert doc comment: --|
+        ("C-c C-a" . haskell-insert-doc)
+        ;; indent nested by 1 space
+        ("M-+" . haskell-move-right)
+        ;; reindent nested by 1 space
+        ("M-_" . haskell-move-left)
+        ;; add cost centre for profiling
+        ;; see http://bit.ly/haskell-cost-centres
+        ("C-c C-s" . haskell-mode-toggle-scc-at-point)
+        ;; compile with defined build command
+        ("C-c C-c" . haskell-compile)
+        ;; search definition in Hoogle
+        ("C-c h" . hoogle)
+        ;; show type of variable or expression at point
+        ("C-c C-t" . haskell-mode-show-type-at)
+        ;; clear repl history
+        ("C-c C-k" . haskell-interactive-mode-clear)))
 
 ;;   (custom-set-variables
 ;;    '(haskell-ask-also-kill-buffers nil)
@@ -2987,7 +3179,7 @@ Fontification of =src= code blocks can give visual separation of text and code o
 #+END_SRC
 *** Prettify =org-mode=
 
-- Turn on [[https://github.com/sabof/org-bullets][org-bullets mode]]
+- Turn on [[https://github.com/sabof/org-bullets][org-bullets mode]] (DISABLED DUE PERFORMANCE REASONS)
 
 - Turn off [[https://github.com/jonnay/org-beautify-theme][org-beautify-theme]]
 
@@ -2998,15 +3190,14 @@ The org-bullets package allows pretty unicode bullet points and fancy TODO state
 These are taken from https://thraxys.wordpress.com/2016/01/14/pimp-up-your-org-agenda/.
 
 #+BEGIN_SRC emacs-lisp
-(use-package org-bullets
-  :ensure t
-  :disabled
-  :defer t
-  :init
-  ;; these settings are moved to the section with customized variables
-  ;; (setq org-bullets-bullet-list '("⚫" "►" "◎" "◉" "○" "◇"))
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-  )
+;; (use-package org-bullets
+;;   :ensure t
+;;   :disabled
+;;   :defer t
+;;   :init
+;;   ;; these settings are moved to the section with customized variables
+;;   ;; (setq org-bullets-bullet-list '("⚫" "►" "◎" "◉" "○" "◇"))
+;;   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
 *** Bullet point lists
 
@@ -3114,29 +3305,24 @@ while still being in org mode.
 (use-package elm-mode
   :ensure t
   :defer t
-  :after company auto-complete
+  :after company ;; auto-complete
   :mode ("\\.elm\\'" . elm-mode)
   :commands elm-mode
   :config
-  (progn
-    (add-to-list 'auto-mode-alist '("\\.elm\\'" . elm-mode)
-                 'company-backends 'company-elm)
-    ;; (add-hook 'elm-mode-hook
-    ;;           (lambda ()
-    ;;             (setq company-backends '(company-elm))))
-    ;; (add-hook 'elm-mode-hook 'company-mode)
-    (add-hook 'elm-mode-hook #'elm-oracle-setup-ac)
-    (add-hook 'elm-mode-hook #'elm-oracle-setup-completion)
-    ;; (add-hook 'elm-mode-hook 'auto-complete-mode)
-    (if (fboundp 'electric-indent-local-mode)
-        (electric-indent-local-mode -1))
-    (setq elm-tags-on-save t
-          elm-format-on-save t
-          elm-tags-exclude-elm-stuff nil
-          elm-sort-imports-on-save t)))
+  (add-to-list 'auto-mode-alist '("\\.elm\\'" . elm-mode))
+  (add-to-list 'company-backends 'company-elm)
+  (add-hook 'elm-mode-hook 'company-mode)
+  (add-hook 'elm-mode-hook 'elm-oracle-setup-ac)
+  (add-hook 'elm-mode-hook 'elm-oracle-setup-completion)
+  ;; (add-hook 'elm-mode-hook 'auto-complete-mode) I use company-mode instead of auto-complete
+  (if (fboundp 'electric-indent-local-mode)
+      (electric-indent-local-mode -1))
+  (setq elm-tags-on-save t
+        elm-format-on-save t
+        elm-tags-exclude-elm-stuff nil
+        elm-sort-imports-on-save t))
 
 ;; (add-hook 'elm-mode-hook 'flycheck-mode)
-
 
 #+END_SRC
 ** ELisp Mode
@@ -3159,19 +3345,87 @@ Features can be seen here: http://web-mode.org/
 
 #+begin_src emacs-lisp
 (use-package web-mode
-  ;; :mode ("\\.html$" . web-mode)
+  :ensure t
   :init
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-code-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-
-  (setq web-mode-enable-auto-pairing t)
-  (setq web-mode-enable-auto-expanding t)
-  (setq web-mode-enable-css-colorization t)
+  (add-hook 'web-mode-hook  'my-web-mode-hook)
   :config
   (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))
+  ;; (add-to-list 'auto-mode-alist '("\\.css?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode)))
+
+(defun my-web-mode-hook ()
+  "Hooks for Web mode."
+  (setq web-mode-markup-indent-offset 2) ;; indent HTML
+  ;; (setq web-mode-css-indent-offset 2)    ;; indent CSS
+  (setq web-mode-code-indent-offset 2)   ;; indent JS
+  (setq web-mode-enable-auto-pairing t)
+  (setq web-mode-enable-auto-expanding t)
+  ;; (setq web-mode-enable-css-colorization t)
+  (setq web-mode-enable-current-column-highlight t)
+  (setq web-mode-enable-current-element-highlight t)
+  ;; (set-face-attribute 'web-mode-css-rule-face nil) ;; change face-color
+  )
 #+end_src
+*** css-mode, less-css-mode and other css-related packages
+
+From here: https://github.com/jcf/emacs.d/blob/master/init-languages.org
+
+#+BEGIN_SRC emacs-lisp
+(use-package css-mode
+  :commands css-mode
+  :init
+  (setq css-indent-offset 2)
+  :config
+  (add-hook 'css-mode-hook 'skewer-css-mode)
+  (use-package rainbow-mode
+    :init
+    (dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook web-mode-hook))
+      (add-hook hook 'rainbow-mode)))
+
+  ;; (use-package css-eldoc)
+
+  (use-package mmm-vars
+    :config
+    (mmm-add-group
+     'html-css
+     '((css-cdata
+        :submode css-mode
+        :face mmm-code-submode-face
+        :front "<style[^>]*>[ \t\n]*\\(//\\)?<!\\[CDATA\\[[ \t]*\n?"
+        :back "[ \t]*\\(//\\)?]]>[ \t\n]*</style>"
+        :insert ((?j js-tag nil @ "<style type=\"text/css\">"
+                     @ "\n" _ "\n" @ "</script>" @)))
+       (css
+        :submode css-mode
+        :face mmm-code-submode-face
+        :front "<style[^>]*>[ \t]*\n?"
+        :back "[ \t]*</style>"
+        :insert ((?j js-tag nil @ "<style type=\"text/css\">"
+                     @ "\n" _ "\n" @ "</style>" @)))
+       (css-inline
+        :submode css-mode
+        :face mmm-code-submode-face
+        :front "style=\""
+        :back "\"")))))
+
+(use-package less-css-mode
+  :ensure t
+  :commands less-css-mode
+  :config
+  (use-package js2-mode)
+  (use-package skewer-less
+    :ensure t))
+
+(use-package sass-mode
+  :ensure t
+  :commands sass-mode)
+
+(use-package scss-mode
+  :ensure t
+  :commands scss-mode
+  :init
+  (setq-default scss-compile-at-save nil))
+#+END_SRC
 *** Emmet Mode
 
 According to [[http://emmet.io/][their website]], "Emmet — the essential toolkit for web-developers."
@@ -3188,6 +3442,11 @@ Cheatsheet: https://docs.emmet.io/cheat-sheet/
   :config
   (setq-default emmet-move-cursor-between-quote t)
   (setq emmet-self-closing-tag-style "")
+  (use-package ac-emmet
+    :ensure t
+    :init
+    (add-hook 'sgml-mode-hook 'ac-emmet-html-setup)
+    (add-hook 'css-mode-hook 'ac-emmet-css-setup))
   ;; (unbind-key "<C-return>" emmet-mode-keymap)
   ;; (unbind-key "C-M-<left>" emmet-mode-keymap)
   ;; (unbind-key "C-M-<right>" emmet-mode-keymap)
@@ -3202,7 +3461,20 @@ Cheatsheet: https://docs.emmet.io/cheat-sheet/
 (use-package skewer-mode
   :commands skewer-mode
   :ensure t
-  :config (skewer-setup))
+  :config
+  (add-hook 'js2-mode-hook 'skewer-mode)
+  (add-hook 'css-mode-hook 'skewer-css-mode)
+  (add-hook 'web-mode-hook 'skewer-html-mode)
+  (add-hook 'html-mode-hook 'skewer-html-mode))
+#+end_src
+*** Vue Mode
+
+Emacs major mode for vue.js
+
+#+begin_src emacs-lisp
+(use-package vue-mode
+  :ensure t
+  :config   (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode)))
 #+end_src
 ** Python Mode
 

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: foundation-grid-x
+# key: gx
+# --
+<div class="grid-x">$0</div>

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: gql-defaultValue
+# key: d
+# --
+@defaultValue(value: ${1:false})$0

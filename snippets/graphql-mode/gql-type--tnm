@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: gql-type
+# key: tnm
+# --
+type ${1:TypeName} {
+  ${2:fieldName}: $0
+}

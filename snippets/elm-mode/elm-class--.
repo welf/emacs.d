@@ -1,0 +1,4 @@
+# key: .
+# name: elm-class
+# --
+class "${0:class name}"

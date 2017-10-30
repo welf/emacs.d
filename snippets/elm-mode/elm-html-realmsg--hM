@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: elm-html-realmsg
+# key: hM
+# --
+-> Html Msg

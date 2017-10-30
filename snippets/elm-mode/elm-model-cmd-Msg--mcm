@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: model-cmd-msg
+# key: mcm
+# --
+( Model, Cmd Msg )

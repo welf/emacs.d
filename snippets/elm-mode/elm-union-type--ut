@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: elm-union-type
+# key: ut
+# --
+type ${1:TypeName}
+    = ${0:ConstructorName}

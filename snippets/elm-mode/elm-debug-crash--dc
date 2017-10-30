@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: elm-debug-crash
+# key: dc
+# --
+Debug.crash "function ${1:functionName} is not implemented yet"$0

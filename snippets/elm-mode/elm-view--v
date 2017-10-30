@@ -1,0 +1,7 @@
+# key: v
+# name: elm-view
+# --
+view : Model -> Html Msg
+view model =
+    div [ ${1:space to skip}]
+        [ ${0: child node}]

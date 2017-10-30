@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: foundation-cell-small-x-medium-y-large-z
+# key: gc
+# --
+<div class="cell small-$1 medium-$2 large-$3">$0</div>

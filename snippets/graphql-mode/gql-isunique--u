@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: gql-isUnique
+# key: u
+# --
+@isUnique

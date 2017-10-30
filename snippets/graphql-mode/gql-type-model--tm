@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: gql-type-model
+# key: tm
+# --
+type ${1:TypeName} @model {
+  id: ID! @isUnique
+  ${2:fieldName}: $0
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}

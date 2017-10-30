@@ -1,0 +1,5 @@
+# key: ta
+# name: type-alias
+# --
+type alias ${1:TypeName} =
+    { ${2:field name} : ${0:value type}}

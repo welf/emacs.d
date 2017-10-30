@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: elm-model-model-cmd-msg
+# key: mmcm
+# --
+Model -> ( Model, Cmd Msg )

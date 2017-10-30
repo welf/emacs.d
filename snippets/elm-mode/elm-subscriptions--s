@@ -1,0 +1,6 @@
+# key: s
+# name: elm-subscriptions
+# --
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    $0

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: gql-rename
+# key: rn
+# --
+@rename(oldName: "${1:oldName}") # FIXME: remove after deploy$0

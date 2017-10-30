@@ -1,0 +1,6 @@
+# key: inm
+# name: initialModel
+# --
+initialModel : Model
+initialModel =
+    { ${1:field name} = ${0:value}}

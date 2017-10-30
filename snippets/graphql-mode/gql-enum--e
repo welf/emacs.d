@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: gql-enum
+# key: e
+# --
+enum ${1:EnumName} {
+  ${0:ENUMVALUE}
+}

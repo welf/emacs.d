@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: gql-migrationValue
+# key: mv
+# --
+@migrationValue(value: ${1:NewFieldType}) # FIXME: remove after deploy$0

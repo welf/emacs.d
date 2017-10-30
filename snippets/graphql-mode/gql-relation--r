@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: gql-relation
+# key: r
+# --
+@relation(name: "${1:RelationName}")$0
