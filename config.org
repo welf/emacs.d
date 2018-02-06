@@ -55,7 +55,7 @@ The whole thing is started by [[file:init.el][init.el]].
    (setq user-full-name "Arthur Welf"
 	 user-mail-address "arthur.welf@gmail.com")
  #+end_src
-** Security Settings
+** COMMENT Security Settings
 
 Turn on TLS Trust Checking (more about security settings in Emacs see [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][here]] and [[https://ogbe.net/emacsconfig.html][here]]):
 
@@ -84,7 +84,7 @@ Set the path variable:
   :config
   (progn (exec-path-from-shell-initialize)
          (setenv "ESHELL" (expand-file-name "~/.emacs.d/.eshell"))
-         (setenv "SHELL" (expand-file-name "/bin/zsh"))))
+         (setenv "SHELL" (expand-file-name "/usr/local/bin/zsh"))))
 
 
 #+END_SRC
@@ -141,15 +141,14 @@ Set constant =*is-a-mac*=:
 #+END_SRC
 ** Set Up Packages Update Interval & Remove Old Packages
 
-Use [[https://github.com/rranelli/auto-package-update.el][auto-package-update]] to update installed packages every 4 days and to remove old packages:
+Use [[https://github.com/rranelli/auto-package-update.el][auto-package-update]] to update installed packages every 10 day and to remove old packages:
 
 #+BEGIN_SRC emacs-lisp
 (use-package auto-package-update
-  :defer t
   :ensure t
   :config
-  (setq auto-package-update-delete-old-versions t
-        auto-package-update-interval 4)
+  (setq auto-package-update-delete-old-versions t)
+  (setq auto-package-update-interval 10)
   (auto-package-update-maybe))
 #+END_SRC
 ** Modernize Emacs' Package Menu With =paradox= Package
@@ -162,7 +161,11 @@ Use [[https://github.com/Malabarba/paradox][paradox]] package for modernizing Em
 
 (use-package paradox
   :ensure t
-  :config (setq paradox-execute-asynchronously t)
+  :disabled t ;; it doesn't work yet with Emacs 25.3
+  :init
+  :config
+  (setq paradox-execute-asynchronously t)
+  (paradox-enable)
   :commands paradox-list-packages)
 #+END_SRC
 ** Set Locales
@@ -738,10 +741,10 @@ This is the modeline built into Spacemacs, but a separate package.
   (require 'spaceline-config)
   (spaceline-spacemacs-theme)
   (spaceline-helm-mode)
-  (use-package info+
-    :ensure t
-    :init
-    (spaceline-info-mode))
+  ;; (use-package info+
+  ;;   :ensure t
+  ;;   :init
+  ;;   (spaceline-info-mode))
   (use-package fancy-battery
     :ensure t
     :disabled
@@ -1480,7 +1483,7 @@ Turn on =visual-line-mode=, but don't show the name of mode in mode line
 
 #+BEGIN_SRC emacs-lisp
 (global-visual-line-mode t)
-(diminish 'visual-line-mode)
+;; (diminish 'visual-line-mode)
 #+END_SRC
 ** Regions-, Kill-, Copy- & Paste Settings
 *** Activate =transient-mark-mode= for highlighting selected regions
@@ -2035,11 +2038,14 @@ I use =company= for a lot of things, so let’s just enable it everywhere.
   :init
   (add-hook 'after-init-hook 'global-company-mode)
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
+  :bind (("C-c ." . company-complete)
+         ("C-." . company-complete))
+  :config
   (setq company-selection-wrap-around t)
   ;; do or don't automatically start completion after <idle time>
   (setq company-idle-delay 0.1)
   ;; at least 2 letters need to be there though
-  (setq company-minimum-prefix-length 3)
+  (setq company-minimum-prefix-length 2)
   ;; show completion numbers for hotkeys
   (setq company-show-numbers t)
   ;; align annotations to the right
@@ -2066,9 +2072,6 @@ I use =company= for a lot of things, so let’s just enable it everywhere.
              ("C-d" . company-show-doc-buffer)
              ("C-l" . company-show-location)
              ("<tab>" . company-complete))
-  :bind (("C-c ." . company-complete)
-         ("C-." . company-complete))
-  :config
   ;; Raise the documentation popup for Company
   (use-package company-quickhelp
     :ensure t
@@ -2076,7 +2079,7 @@ I use =company= for a lot of things, so let’s just enable it everywhere.
     :init
     (add-hook 'company-mode-hook 'company-quickhelp-mode)
     :config
-    (setq company-quickhelp-delay 3))
+    (setq company-quickhelp-delay 1))
 
   ;; Set up statistics for company completions
   (use-package company-statistics
@@ -2132,6 +2135,7 @@ Used [[https://www.emacswiki.org/emacs/TabCompletion#SmartTab][smart-tab]] to co
 #+BEGIN_SRC emacs-lisp
 (use-package auto-complete
   :ensure t
+  :disabled t
   :init
   (ac-config-default)
   ;; (global-auto-complete-mode 1)
@@ -2817,6 +2821,64 @@ in which case we defer to stylish-haskell."
     (haskell-sort-imports)
     (haskell-align-imports)))
 #+END_SRC
+** Idris Mode
+
+#+begin_src emacs-lisp
+(use-package idris-mode
+  :ensure t
+  :pin melpa
+  :mode "\\.idr\\'"
+  :init
+  (use-package prop-menu
+    :ensure t)
+  (use-package frames-only-mode
+    :ensure t)
+  :config
+  (defun my-idris-mode-hook ()
+
+    ;; This makes it so that especially errors reuse their frames
+    ;; https://emacs.stackexchange.com/questions/327/how-can-i-block-a-frame-from-being-split/338
+    ;; alternatively, add this to certain frames: (set-frame-parameter nil 'unsplittable t)
+    ;; (without this, idris throws out tons of new frames)
+    (add-to-list 'display-buffer-alist
+                 '(".*". (display-buffer-reuse-window . ((reusable-frames . t)))))
+    (setq idris-stay-in-current-window-on-compiler-error t)
+    (setq idris-prover-restore-window-configuration t)
+
+    ;; If you kill a buffer (eg, hit "q"), frames with these names wil also be killed
+    (add-to-list 'frames-only-mode-kill-frame-when-buffer-killed-buffer-list "*idris-repl*")
+    (add-to-list 'frames-only-mode-kill-frame-when-buffer-killed-buffer-list "*idris-notes*")
+    (add-to-list 'frames-only-mode-kill-frame-when-buffer-killed-buffer-list "*idris-info*")
+    (add-to-list 'frames-only-mode-kill-frame-when-buffer-killed-buffer-list "*idris-holes*"))
+
+  (add-hook 'idris-mode-hook #'my-idris-mode-hook))
+#+end_src
+** Ethereum' Solidity Mode
+
+Emacs' solidity-mode: https://github.com/ethereum/emacs-solidity
+
+#+BEGIN_SRC emacs-lisp
+;; PATH to solidity checkers' binaries
+(setq solidity-solc-path "/usr/local/bin/solc")
+(setq solidity-solium-path "/Users/AW/.antigen-nvm/versions/node/v9.1.0/bin/solium")
+
+;; Activate solc and solium checkers to work together with Flycheck
+(setq solidity-flycheck-solc-checker-active t)
+(setq solidity-flycheck-solium-checker-active t)
+
+;; PATH to solium RC file
+(setq flycheck-solidity-solium-soliumrcfile "/Users/AW/Dev/Solidity/.soliumrc.json")
+
+(use-package solidity-mode
+  :ensure t
+  :config
+  ;; Choose the commenting style
+  ;; with double slash //
+  ;; (setq solidity-comment-style 'slash)
+  ;; or with stars /* .. */
+  (setq solidity-comment-style 'star) ;; this is the default
+  )
+#+END_SRC
 ** Org Mode
 *** Useful links to manuals and other org-related stuff
 
@@ -2840,32 +2902,32 @@ in which case we defer to stylish-haskell."
 I ensure the =org-plus-contrib= package so that it installs not only the latest =org-mode=, but also the included contribution packages.
 
 #+BEGIN_SRC emacs-lisp
-(use-package org
-  :ensure org-plus-contrib
-  :pin org
-  :defer 10
-  :diminish org-indent-mode
-  :bind (("C-c l" . org-store-link)
-         ("C-c a" . org-agenda)
-         ("C-c b" . org-iswitchb)
-         ("C-c c" . org-capture)
-         ("C-c C-f" . org-babel-previous-src-block)
-         ("C-c C-b" . org-babel-next-src-block))
-  :defer 30
-  :config
-  (use-package org-install)
-  (use-package ob-core)
-  ;; org-export
-  (use-package ox)
-  ;; Enable archiving things
-  (use-package org-archive)
-  ;; enabled export backends
-  ;; (use-package ox-rss)
-  (when (boundp 'org-export-backends)
-    (custom-set-variables '(org-export-backends '(ascii beamer html latex md))))
-  ;; Allow's electric-pair-mode to surround things with = and ~ in org-mode
-  (modify-syntax-entry ?~ "(~" org-mode-syntax-table)
-  (modify-syntax-entry ?= "(=" org-mode-syntax-table))
+;; (use-package org
+;;   :ensure org-plus-contrib
+;;   :pin org
+;;   :defer 10
+;;   :diminish org-indent-mode
+;;   :bind (("C-c l" . org-store-link)
+;;          ("C-c a" . org-agenda)
+;;          ("C-c b" . org-iswitchb)
+;;          ("C-c c" . org-capture)
+;;          ("C-c C-f" . org-babel-previous-src-block)
+;;          ("C-c C-b" . org-babel-next-src-block))
+;;   :defer 30
+;;   :config
+;;   (use-package org-install)
+;;   (use-package ob-core)
+;;   ;; org-export
+;;   (use-package ox)
+;;   ;; Enable archiving things
+;;   (use-package org-archive)
+;;   ;; enabled export backends
+;;   ;; (use-package ox-rss)
+;;   (when (boundp 'org-export-backends)
+;;     (custom-set-variables '(org-export-backends '(ascii beamer html latex md))))
+;;   ;; Allow's electric-pair-mode to surround things with = and ~ in org-mode
+;;   (modify-syntax-entry ?~ "(~" org-mode-syntax-table)
+;;   (modify-syntax-entry ?= "(=" org-mode-syntax-table))
 #+END_SRC
 *** Automatically save all org files every minute /(disabled)/
 #+BEGIN_SRC emacs-lisp
@@ -3557,7 +3619,7 @@ Use =M-x scratch= to launch a scratch buffer for the current mode.
   :ensure t
   :commands scratch)
 #+end_src
-* Version Control Settings
+** Version Control Settings
 ** Magit Settings
 *** Useful links to manuals and other stuff
 - [[https://magit.vc/manual/magit/][Magit User Manual]]

@@ -10,8 +10,9 @@
 ;;; Set up package
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+             '("melpa" . "http://melpa.org/packages/"))
+;; (add-to-list 'package-archives
+;;              '("org" . "http://orgmode.org/elpa/"))
 (package-initialize)
 
 ;;; Bootstrap use-package
@@ -24,7 +25,7 @@
 ;; From use-package README
 (eval-when-compile
   (require 'use-package))
-(require 'diminish)                ;; if you use :diminish
+;; (require 'diminish)                ;; if you use :diminish
 (require 'bind-key)
 ;; (setq use-package-verbose t)
 
